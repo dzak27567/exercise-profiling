@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author muhammad.khadafi
@@ -24,18 +26,16 @@ public class StudentService {
     private StudentCourseRepository studentCourseRepository;
 
     public List<StudentCourse> getAllStudentsWithCourses() {
-        List<Student> students = studentRepository.findAll();
-        List<StudentCourse> studentCourses = new ArrayList<>();
-        for (Student student : students) {
-            List<StudentCourse> studentCoursesByStudent = studentCourseRepository.findByStudentId(student.getId());
-            for (StudentCourse studentCourseByStudent : studentCoursesByStudent) {
-                StudentCourse studentCourse = new StudentCourse();
-                studentCourse.setStudent(student);
-                studentCourse.setCourse(studentCourseByStudent.getCourse());
-                studentCourses.add(studentCourse);
-            }
-        }
-        return studentCourses;
+        List<StudentCourse> allStudentCourses = studentCourseRepository.findAll();
+
+        // Create a map of student IDs to students for efficient lookup
+        Map<Long, Student> studentMap = studentRepository.findAll().stream()
+                .collect(Collectors.toMap(Student::getId, student -> student));
+
+        // Set the student object for each student course
+        allStudentCourses.forEach(sc -> sc.setStudent(studentMap.get(sc.getStudent().getId())));
+
+        return allStudentCourses;
     }
 
     public Optional<Student> findStudentWithHighestGpa() {
