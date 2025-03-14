@@ -41,23 +41,31 @@ public class StudentService {
     public Optional<Student> findStudentWithHighestGpa() {
         List<Student> students = studentRepository.findAll();
         Student highestGpaStudent = null;
-        double highestGpa = 0.0;
+        double highestGpa = Double.MIN_VALUE; // Mulai dari nilai minimum double
+
         for (Student student : students) {
-            if (student.getGpa() > highestGpa) {
+            if (student != null && student.getGpa() > highestGpa) {
                 highestGpa = student.getGpa();
                 highestGpaStudent = student;
             }
         }
+
         return Optional.ofNullable(highestGpaStudent);
     }
 
+
     public String joinStudentNames() {
         List<Student> students = studentRepository.findAll();
-        String result = "";
-        for (Student student : students) {
-            result += student.getName() + ", ";
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < students.size(); i++) {
+            result.append(students.get(i).getName());
+            if (i < students.size() - 1) {
+                result.append(", ");
+            }
         }
-        return result.substring(0, result.length() - 2);
+
+        return result.toString();
     }
 }
 
